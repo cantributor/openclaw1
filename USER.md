@@ -1,6 +1,6 @@
 # USER.md
 
-- **Name:** Алексей
+- **Name:** Лёша
 - **What to call them:** Can
 - **Telegram:** @cantributor (id 280076262)
 - **Language:** Русский
