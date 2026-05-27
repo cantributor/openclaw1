@@ -39,6 +39,16 @@ Skills are shared. Your setup is yours. Keeping them apart means you can update 
 
 Add whatever helps you do your job. This is your cheat sheet.
 
+## Speech-to-Text (Voice)
+
+- **Tool:** `~/bin/transcribe <audio-file> [lang]`
+- **Engine:** whisper.cpp в `~/whisper.cpp/`, бинарь `build/bin/whisper-cli`.
+- **Модель по умолчанию:** `~/whisper.cpp/models/ggml-small.bin` (small, мультиязычная). Переопределить через `WHISPER_MODEL=...`.
+- **Язык по умолчанию:** `ru`.
+- **Скорость:** ~5–6× realtime на VPS (2 ядра). 30-секундное голосовое — ~2–3 минуты.
+- **Поведение:** ffmpeg сам приводит вход к 16k mono wav, скрипт выдаёт чистый текст без таймстампов.
+- **Применение:** telegram voice/audio messages — скачать файл и прогнать через `transcribe`.
+
 ## Related
 
 - [Agent workspace](/concepts/agent-workspace)
