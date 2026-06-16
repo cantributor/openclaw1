@@ -49,6 +49,25 @@ Add whatever helps you do your job. This is your cheat sheet.
 - **Поведение:** ffmpeg сам приводит вход к 16k mono wav, скрипт выдаёт чистый текст без таймстампов.
 - **Применение:** telegram voice/audio messages — скачать файл и прогнать через `transcribe`.
 
+## ⚠️ ОБНОВЛЕНИЕ OpenClaw — ТОЛЬКО штатным способом!
+
+**НИКОГДА не обновляться через `npm install -g openclaw@...`.** Это ломает меня.
+
+**Правильный способ:** `openclaw update` (штатный, мигрирует состояние) или кнопка обновления в GUI.
+
+**Инцидент 2026-06-16:** обновился 2026.5.28→2026.6.6 через `npm install -g` — сломался:
+- потерян anthropic API-ключ (`ProviderAuthError: No API key found for provider "anthropic"`) → модель не отвечала, агент падал «before reply»;
+- битые ссылки на модули старой сборки (`MODULE_NOT_FOUND`: browser-control, task-registry-maintenance);
+- main-сессия не восстановилась (`transcript tail is not resumable`).
+- Can пришлось реанимировать меня вручную сторонними инструментами. Это недопустимо.
+
+**Чеклист ПОСЛЕ любого обновления (обязательно, не только номер версии):**
+1. `openclaw doctor` — проверить warnings.
+2. Лог на `MODULE_NOT_FOUND` / `Cannot find module`.
+3. Лог на `ProviderAuthError` / auth-провайдер (anthropic ключ на месте).
+4. Проверить, что модель реально отвечает (не только «running»).
+5. Плагины (Brave и др.) переустановить/обновить под новую версию (`openclaw plugins update <id>`).
+
 ## Web Search (Brave)
 
 - **Провайдер по умолчанию:** Brave. Настроен 2026-06-16.
