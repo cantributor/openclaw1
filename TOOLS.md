@@ -84,6 +84,27 @@ Add whatever helps you do your job. This is your cheat sheet.
 - **SearXNG**: в автодетекте стоит последним, но без `baseUrl` падает с ошибкой `SearXNG base URL is not configured`. Если provider не задан явно и остальные не готовы — система сваливается именно сюда.
 - **Вывод:** для надёжного поиска с этого VPS нужен API-провайдер с ключом (Brave). Key-free варианты блокируются по IP.
 
+### Doctor warning «conflicting plugin install metadata for: brave» (legacy installs.json)
+
+**Симптом:** после обновления (например 2026.6.6→2026.6.8) `openclaw status`/`doctor` при каждом старте печатают:
+> Left plugin install index in place because shared SQLite state has conflicting plugin install metadata for: brave
+
+**Причина (разобрано по коду 2026-06-17):** `~/.openclaw/plugins/installs.json` — это **legacy-источник** разовой миграции «файл → SQLite». Данные давно в `~/.openclaw/state/openclaw.sqlite` (таблица `installed_plugin_index`, одна строка с JSON-полями `install_records_json` / `plugins_json`). Рантайм читает из SQLite. Функция `migrateLegacyInstalledPluginIndex` (`dist/state-migrations-*.js`) при старте видит старую версию brave в файле (напр. 2026.5.28) против актуальной в SQLite (2026.6.8), слить нечего (addedCount=0), фиксирует конфликт и оставляет файл + печатает warning. В коде путь так и зовётся `LEGACY_INSTALLED_PLUGIN_INDEX_STORE_PATH`.
+
+**Что НЕ помогает** (проверено): `openclaw plugins registry --refresh`, `openclaw plugins update brave` (видит «up to date»), `openclaw plugins install ... --force` + рестарт. Все они НЕ перезаписывают `installs.json` — при конфликте миграция намеренно бережёт файл.
+
+**Решение:** убрать legacy-файл с пути и перезапустить gateway. По коду: нет файла → миграция тихо пропускается, warning исчезает.
+```
+cp -a ~/.openclaw/plugins/installs.json ~/.openclaw/backups/...   # бэкап
+mv ~/.openclaw/plugins/installs.json ~/.openclaw/plugins/installs.json.disabled-YYYYMMDD
+systemctl --user restart openclaw-gateway
+```
+Проверка после: `openclaw plugins doctor` без warning + живой `web_search` (provider brave). Откат: `mv ...disabled-... installs.json` + рестарт.
+
+**Важно:** ключ Brave хранится отдельно (config/env), переустановка пакета и удаление installs.json его НЕ трогают.
+
+(Записано 2026-06-17)
+
 ### Если поиск снова сломается — чеклист
 
 1. `openclaw doctor 2>&1 | grep -iE "brave|search|provider|plugin"` — проверить, установлен ли плагин.
@@ -92,6 +113,3 @@ Add whatever helps you do your job. This is your cheat sheet.
 4. После правок конфига/плагина — `systemctl --user restart openclaw-gateway` (рестарт через фон, иначе обрывает мою же сессию).
 5. **Гадать ID страниц GSMArena бесполезно** — они не совпадают по номеру, ведут на чужие телефоны. Только через рабочий поиск находить точный URL.
 
-## Related
-
-- [Agent workspace](/concepts/agent-workspace)
