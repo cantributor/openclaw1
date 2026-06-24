@@ -4,7 +4,7 @@
 - **What to call them:** Can
 - **Telegram:** @cantributor (id 280076262)
 - **Language:** Русский
-- **Timezone:** _(уточнить)_
+- **Timezone:** Москва (MSK, UTC+3). По умолчанию всё время — в этом поясе.
 
 ## Context
 
